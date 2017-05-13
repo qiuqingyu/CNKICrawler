@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 from urllib.parse import quote
 
 from bs4 import BeautifulSoup
@@ -7,6 +8,8 @@ import sys
 import io
 import re
 import time
+
+
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 
 page_num=15
@@ -44,7 +47,11 @@ def get_paper_url(page_url):
 
 if __name__ == '__main__':
     start = time.clock()
-    index_url='http://search.cnki.com.cn/Search.aspx?q='+quote('白血病')+'&rank=&cluster=&val=&p='#quote方法把汉字转换为encodeuri?
+    cf = ConfigParser()
+    cf.read("Config.conf", encoding='utf-8')
+    keyword = cf.get('base', 'keyword')
+
+    index_url='http://search.cnki.com.cn/Search.aspx?q='+quote(keyword)+'&rank=&cluster=&val=&p='#quote方法把汉字转换为encodeuri?
     print(index_url)
     for i in range(0,68):
         page_num=15
@@ -53,5 +60,7 @@ if __name__ == '__main__':
         #get_page_url(i)
         print(page_url)
         get_paper_url(page_url)
+        cf.set('base', 'currentpage', str(i))
+        cf.write(open("Config.conf", "w", encoding='utf-8'))
     end = time.clock()
     print ('Running time: %s Seconds'%(end-start))
