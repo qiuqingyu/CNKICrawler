@@ -6,9 +6,9 @@ import urllib
 import urllib.request
 import sys
 import io
-import re
 import time
 
+import spider_paper
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8')
 
@@ -49,11 +49,12 @@ if __name__ == '__main__':
     start = time.clock()
     cf = ConfigParser()
     cf.read("Config.conf", encoding='utf-8')
-    keyword = cf.get('base', 'keyword')
+    keyword = cf.get('base', 'keyword')# 关键词
+    maxpage = cf.getint('base', 'max_page')# 最大页码
 
     index_url='http://search.cnki.com.cn/Search.aspx?q='+quote(keyword)+'&rank=&cluster=&val=&p='#quote方法把汉字转换为encodeuri?
     print(index_url)
-    for i in range(0,68):
+    for i in range(0, maxpage):
         page_num=15
         page_str_num=i*page_num
         page_url=index_url+str(page_str_num)
@@ -62,5 +63,6 @@ if __name__ == '__main__':
         get_paper_url(page_url)
         cf.set('base', 'currentpage', str(i))
         cf.write(open("Config.conf", "w", encoding='utf-8'))
+    spider_paper.spider_paper()# spider_paper补全文章信息
     end = time.clock()
     print ('Running time: %s Seconds'%(end-start))
