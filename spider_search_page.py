@@ -1,3 +1,4 @@
+import os
 import socket
 from configparser import ConfigParser
 from urllib.parse import quote
@@ -22,6 +23,9 @@ def get_paper_url(page_url):
     soup = BeautifulSoup(html,'html.parser')
     #print(soup.find_all('div', class_='wz_content',a))
     #pp=soup.findAll('a',attrs={'href':re.compile('^http'),'id':'link1'})
+    if os.path.exists('data-detail.txt'):
+        print('存在输出文件，删除该文件')
+        os.remove('data-detail.txt')
     f = open('data-detail.txt','a+', encoding='utf-8')
     all = soup.find_all('div', class_='wz_content')
     for string in all:
