@@ -3,12 +3,10 @@ import socket
 
 from bs4 import BeautifulSoup
 import urllib
-# import urllib2
-import requests
 import time
 import xlwt
 
-if __name__ == "__main__":
+def spider_paper():
     start = time.clock()
     # f=urllib2.urlopen(url, timeout=5).read()
     # soup=BeautifulSoup(html)
@@ -24,19 +22,19 @@ if __name__ == "__main__":
     sheet.write(0, 3, '引用')
     sheet.write(0, 4, '作者')
     sheet.write(0, 5, '摘要')
+    sheet.write(0, 6, '参考文献')
 
     lines = file.readlines()
     txt_num = 1
     lin_num = 1
     for line in lines:
         object = line.split('\t')
-        print(object)
         # file_name = './data/out_' + str(txt_num) + '.txt'
         file_name = './data/out.txt'
         paper_url = object[0]
         attempts = 0
         success = False
-        while attempts < 10 and not success:
+        while attempts < 20 and not success:
             try:
                 html = urllib.request.urlopen(paper_url).read()
                 soup = BeautifulSoup(html, 'html.parser')
@@ -74,8 +72,26 @@ if __name__ == "__main__":
                             object = j.split('\t')
                             for k in object:
                                 tstr += k
+
+        #参考文献
+        ifreferen = soup.find_all('td', class_='b14', rowspan='2')
+        ref = ''
+        for i in range(len(ifreferen)):
+            if ('【参考文献】' in ifreferen[i].get_text()):
+                referenceList = soup.find_all('div', id='div_Ref')  # 参考文献列表
+                if len(referenceList) == 0:
+                    referenceList = soup.find_all('div', class_='div_Ref')
+                referenceList = referenceList[i]
+                for tdref in referenceList.find_all('td', width='676'):
+                    # refitem = tdref.findAll('a', target="_blank")
+                    refitem = tdref.a.get("href")
+                    refitem = refitem.strip()
+                    #print(refitem)
+                    ref = ref + refitem + ' ,'
+
         line = line.strip('\n')
-        line = line + '\t' + str(author) + '\t' + str(tstr) + '\n'
+        line = line + '\t' + str(author) + '\t' + str(tstr) + '\t' + str(ref) + '\n'
+        #print(line)
         outstring = line.split('\t')
         for i in range(len(outstring)):
             sheet.write(lin_num, i, outstring[i])
