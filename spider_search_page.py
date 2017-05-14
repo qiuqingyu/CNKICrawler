@@ -1,3 +1,4 @@
+import socket
 from configparser import ConfigParser
 from urllib.parse import quote
 
@@ -60,7 +61,18 @@ if __name__ == '__main__':
         page_url=index_url+str(page_str_num)
         #get_page_url(i)
         print(page_url)
-        get_paper_url(page_url)
+        attempts = 0
+        success = False
+        while attempts < 10 and not success:
+            try:
+                get_paper_url(page_url)
+                socket.setdefaulttimeout(10)  # 设置10秒后连接超时
+                success = True
+            except:
+                attempts += 1
+                print("第"+str(attempts)+"次重试！！")
+                if attempts == 10:
+                    break
         cf.set('base', 'currentpage', str(i))
         cf.write(open("Config.conf", "w", encoding='utf-8'))
     spider_paper.spider_paper()# spider_paper补全文章信息
