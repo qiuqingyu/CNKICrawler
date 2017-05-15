@@ -23,9 +23,6 @@ def get_paper_url(page_url):
     soup = BeautifulSoup(html,'html.parser')
     #print(soup.find_all('div', class_='wz_content',a))
     #pp=soup.findAll('a',attrs={'href':re.compile('^http'),'id':'link1'})
-    if os.path.exists('data-detail.txt'):
-        print('存在输出文件，删除该文件')
-        os.remove('data-detail.txt')
     f = open('data-detail.txt','a+', encoding='utf-8')
     all = soup.find_all('div', class_='wz_content')
     for string in all:
@@ -56,10 +53,14 @@ if __name__ == '__main__':
     cf.read("Config.conf", encoding='utf-8')
     keyword = cf.get('base', 'keyword')# 关键词
     maxpage = cf.getint('base', 'max_page')# 最大页码
+    current_page = cf.getint('base', 'currentpage')  # 读取currentPage
+    if os.path.exists('data-detail.txt') and current_page == 0:
+        print('存在输出文件，删除该文件')
+        os.remove('data-detail.txt')
 
     index_url='http://search.cnki.com.cn/Search.aspx?q='+quote(keyword)+'&rank=&cluster=&val=&p='#quote方法把汉字转换为encodeuri?
     print(index_url)
-    for i in range(0, maxpage):
+    for i in range(current_page, maxpage):
         page_num=15
         page_str_num=i*page_num
         page_url=index_url+str(page_str_num)
