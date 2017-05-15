@@ -54,9 +54,9 @@ if __name__ == '__main__':
     keyword = cf.get('base', 'keyword')# 关键词
     maxpage = cf.getint('base', 'max_page')# 最大页码
     current_page = cf.getint('base', 'currentpage')  # 读取currentPage
-    if os.path.exists('data-detail.txt') and current_page == 0:
-        print('存在输出文件，删除该文件')
-        os.remove('data-detail.txt')
+    # if os.path.exists('data-detail.txt') and current_page == 0:
+    #    print('存在输出文件，删除该文件')
+    #    os.remove('data-detail.txt')
 
     index_url='http://search.cnki.com.cn/Search.aspx?q='+quote(keyword)+'&rank=&cluster=&val=&p='#quote方法把汉字转换为encodeuri?
     print(index_url)
