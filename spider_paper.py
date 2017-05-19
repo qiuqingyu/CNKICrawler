@@ -21,17 +21,21 @@ def spider_paper():
     sheet.write(0, 2, '来源')
     sheet.write(0, 3, '引用')
     sheet.write(0, 4, '作者')
-    sheet.write(0, 5, '摘要')
-    sheet.write(0, 6, '参考文献')
+    sheet.write(0,5,'作者单位')
+    sheet.write(0,6,'关键词')
+    sheet.write(0, 7, '摘要')
+    sheet.write(0, 8, '参考文献')
 
     lines = file.readlines()
     txt_num = 1
     lin_num = 1
+    paper_list = []
     for line in lines:
         object = line.split('\t')
-        # file_name = './data/out_' + str(txt_num) + '.txt'
-        file_name = './data/out.txt'
         paper_url = object[0]
+        if paper_url in paper_list:
+            continue
+        paper_list.append(paper_url)
         attempts = 0
         success = False
         while attempts < 20 and not success:
@@ -40,12 +44,16 @@ def spider_paper():
                 soup = BeautifulSoup(html, 'html.parser')
                 socket.setdefaulttimeout(10)  # 设置10秒后连接超时
                 success = True
-            except:
+            except socket.error:
                 attempts += 1
                 print("第"+str(attempts)+"次重试！！")
                 if attempts == 10:
                     break
-
+            except urllib.error:
+                attempts += 1
+                print("第" + str(attempts) + "次重试！！")
+                if attempts == 10:
+                    break
         title = soup.find_all('div', style="text-align:center; width:740px; font-size: 28px;color: #0000a0; font-weight:bold; font-family:'宋体';")
         abstract = soup.find_all('div', style="text-align:left;word-break:break-all")
         author = soup.findAll('div', style='text-align:center; width:740px; height:30px;')
@@ -89,8 +97,43 @@ def spider_paper():
                     #print(refitem)
                     ref = ref + refitem + ' ,'
 
+
+        #作者单位
+        authorUnitScope = soup.find('div', style='text-align:left;', class_='xx_font')
+        # print(authorUnitScope)
+        author_school = ''
+        author_school_text = authorUnitScope.get_text()
+        if '【作者单位】：' in author_school_text:
+            index = author_school_text.find('【作者单位】：', 0)
+        else:
+            index = author_school_text.find('【学位授予单位】：', 0)
+        for k in range(index, len(author_school_text)):
+            if author_school_text[k] == '\n' or author_school_text[k] == '\t' or author_school_text[k] == '\r' or \
+                            author_school_text[k] == '】':
+                continue
+            if author_school_text[k] == ' ' and author_school_text[k + 1] == ' ':
+                continue
+            if author_school_text[k] != '【':
+                author_school = author_school + author_school_text[k]
+            if author_school_text[k] == '【' and k != index:
+                break
+
+        #关键词
+        key_word = ''
+        index = author_school_text.find('【关键词】：', 0)
+        for k in range(index, len(author_school_text)):
+            if author_school_text[k] == '\n' or author_school_text[k] == '\t' or author_school_text[k] == '\r' or \
+                            author_school_text[k] == '】':
+                continue
+            if author_school_text[k] == ' ' and author_school_text[k + 1] == ' ':
+                continue
+            if author_school_text[k] != '【':
+                key_word = key_word + author_school_text[k]
+            if author_school_text[k] == '【' and k != index:
+                break
+
         line = line.strip('\n')
-        line = line + '\t' + str(author) + '\t' + str(tstr) + '\t' + str(ref) + '\n'
+        line = line + '\t' + str(author) + '\t' + str(author_school)+ '\t'+ str(key_word) + '\t' + str(tstr) + '\t' + str(ref) + '\n'
         #print(line)
         outstring = line.split('\t')
         for i in range(len(outstring)):
