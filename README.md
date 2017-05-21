@@ -4,7 +4,7 @@
 ## 需要安装的工具有：BeautifulSoup， xlwt
 
 ### 使用python3.x
-### 运行spider_search_page.py即可，生成的结果文件为：data_out.xls，配置文件为Config.conf
+### 运行spider_main.py即可，生成的结果文件为：data_out.xls，配置文件为Config.conf
 
 运行结果：
 ![](result.png)
