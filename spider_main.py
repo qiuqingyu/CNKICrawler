@@ -42,7 +42,7 @@ if __name__ == '__main__':
     #print(maxpage)
     cf = ConfigParser()
     cf.read("Config.conf", encoding='utf-8')
-    cf.set('base', 'max_page', str(maxpage))
+    cf.set('base', 'maxpage', str(maxpage))
     cf.write(open('Config.conf', 'w', encoding='utf-8'))
 
     for i in range(currentpage, maxpage):
